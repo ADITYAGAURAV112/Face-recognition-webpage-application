@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block body %}
+    
+    <div class="container my-2">
+        <div class="container my">
+            <h1>Recognize your face using webcam.</h1>
+        </div>
+        <h2>Live streaming</h2>
+        <div class = "container my-5 align-items-center" >
+            <img src="{{ url_for('video') }}" width="50%"/>
+            <p class="lead">
+                Make sure you are in light!!
+            </p>
+        </div>
+    </div>
+    {% for message in get_flashed_messages() %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{message}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Success"></button>
+    </div>
+    {%endfor%}
+
+{% endblock body %}

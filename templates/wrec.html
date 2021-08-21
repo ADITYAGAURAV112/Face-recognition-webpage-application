@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block body %}
+    
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4"
+    crossorigin="anonymous"></script>
+     
+
+    <div class = "container my-5">
+        <h2>Face Recognition using Webcam(Register first incase not alredy registered).</h2>
+
+        <div style="position:relative">
+            <video autoplay="true" id="videoElement"></video>
+            <canvas id="overlay" width="480" height="480" style="position:absolute; top:0; left:0; background-color:rgba(0,0,0,0)"></canvas>
+        </div>
+
+        <p class="lead">
+            Make sure you are in light!!
+        </p>
+
+        <canvas id="imageContainer" width="480" height="480" style="display:none"></canvas> 
+
+    </div>
+    {% for message in get_flashed_messages() %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{message}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Success"></button>
+    </div>
+    {%endfor%}
+
+    <script>
+        "use strict";
+        const video = document.getElementById("videoElement");
+        const canvas = document.getElementById("imageContainer");
+        const ctx = canvas.getContext("2d");
+        //const button = document.getElementById("button");
+        const constraints = {audio:false, video: {width:480 ,height:480}}
+        const overlayCanvas = document.getElementById("overlay");
+        const overlayCtx = overlayCanvas.getContext("2d");
+        overlayCtx.font = '16px serif';
+        overlayCtx.fillStyle = "red";
+
+        
+        function myFrame() {
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            $.post("/webcam_demo",
+                {
+                    label: "video framing",
+                    content: canvas.toDataURL("image/png")
+                },
+                function(box_data){
+                    console.log(box_data);
+                    box_data.forEach((bd) => {
+                        overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+                        if (bd.hasOwnProperty('name')) {
+                            overlayCtx.fillText(bd.name, (bd.box[0] + bd.box[2])/2, bd.box[3]);
+                        }
+                    });
+                }
+            )
+        };
+        setInterval(myFrame, 500);
+        navigator.mediaDevices.getUserMedia(constraints)
+        .then(function(mediaStream) {
+            video.srcObject = mediaStream;
+        });
+
+    </script>
+
+{% endblock body %}

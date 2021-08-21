@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block body %}
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script> -->
+
+   
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4"
+    crossorigin="anonymous"></script>
+
+    <div class = "container my-5">
+        <video autoplay="true" id="videoElement"></video>
+        <canvas id="imageContainer" width="224" height="224"></canvas>
+        <!--<label>
+            <input id = "regstatus" class="alert alert-light" role="alert"></input>
+        </label>-->
+        <p id="mydata"></p>
+        <div class="form-group">
+            <input id="txt" type="text" class="form-control" placeholder="Your Full Name"></input>
+            <input type="button" id="button" value="Register" class="form-control button">
+        </div>
+    </div>
+
+    
+    <script>
+        "use strict";
+        var mainContainer = document.getElementById("myData");
+        //var mainCircle = document.getElementById("regstatus");
+        const video = document.getElementById("videoElement");
+        const canvas = document.getElementById("imageContainer");
+        const context = canvas.getContext("2d");
+        const button = document.getElementById("button");
+        const constraints = {audio:false, video: {width:480 ,height:480}}
+        
+        button.addEventListener("click",()=>{
+            context.drawImage(video, 0,0, canvas.width, canvas.height);
+            const name = $("#txt").val();
+            $("#txt").val("");
+            $.post("/webcam_reg_pic",
+            {
+             label: "video capture",
+             content: canvas.toDataURL("image/png"),
+             name : name
+            },
+            function(data){
+                if (data.status == "OK") {
+                    //$("#regstatus").val("Sucess: " + data.msg);
+
+                    //mainContainer.innerHTML = "Success: " + data.msg;
+
+                    window.alert("Success: " + data.msg)
+                } else if (data.status == "NG") {
+                    //$("#regstatus").val("Error: " + data.msg)
+
+                    //mainContainer.innerHTML = "Error: "+ data.msg;
+
+                    window.alert("Error: "+ data.msg)
+                }
+            });
+        });
+
+        navigator.mediaDevices.getUserMedia(constraints)
+        .then(function(mediaStream) {
+            video.srcObject = mediaStream;
+        });
+
+    </script>
+
+{% endblock body %}
